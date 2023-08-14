@@ -1,0 +1,43 @@
+library(dplyr)
+data <- read.csv("D:/R Projects/household_power_consumption.txt", sep = ";")
+data$Date <- as.Date(data$Date, format = "%d/%m/%Y")
+data$Time <- as.POSIXct(data$Time, format = "%H:%M:%S")
+head(data)
+
+
+data$Global_active_power <- as.numeric(data$Global_active_power)
+
+hist(data$Global_active_power, 
+     main = "Histogram of Global Active Power",
+     xlab = "Global Active Power",
+     ylab = "Frequency",
+     col = "red")
+
+# Create a table of frequencies for Global_active_power
+freq_table <- table(data$Global_active_power)
+
+# Create a bar plot
+barplot(freq_table, main = "Frequency of Global Active Power", ylab = "Frequency", col = "red")
+
+
+data_clean <- data[complete.cases(data[, c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3")]), ]
+
+# Now create the bar plot
+barplot(height = colSums(data_clean[, c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3")]),
+        names.arg = c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3"),
+        main = "Energy Sub Metering",
+        xlab = "Sub Metering",
+        ylab = "Total Energy Consumption")
+
+
+data_imputed <- data
+for (col in c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3")) {
+  data_imputed[is.na(data_imputed[, col]), col] <- mean(data_imputed[, col], na.rm = TRUE)
+}
+
+# Now create the bar plot
+barplot(height = colSums(data_imputed[, c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3")]),
+        names.arg = c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3"),
+        main = "Energy Sub Metering",
+        xlab = "Sub Metering",
+        ylab = "Total Energy Consumption")
